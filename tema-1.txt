@@ -1,0 +1,92 @@
+
+int contor = 0, ocra = 0, ocrb = 0, contor1 = 0;
+
+void init_timer_0() {
+  
+  TCCR0A = 0;
+  TCCR0B = 0;
+  TCCR0A |= (1 << WGM01) | (1 << WGM00) | (1 << COM0A1) | (1 << COM0B1) ; //fast pwm mode + (COM0A1)-> non inverted mode (sta pe high pana la egal)
+  TCCR0B |= (1 << CS00) ;   //No prescaling
+
+
+}
+
+int main (void) {//setup
+  
+  DDRD |= (1<<5)|(1<<6);
+  init_timer_0();     //initializam timer-ul
+  init_com_seriala(); //initializam comunicarea seriala
+
+while(1)//loop
+{
+  PWM();
+}
+}
+
+
+
+unsigned char USART_receive(void) {  // primim datele de la serial
+  while (!(UCSR0A & (1 << RXC0)));
+  return UDR0;
+}
+
+
+void Value(int num) {           
+
+  if ((num >= 0) && (num <= 9)) {
+  
+    contor++;
+    ocra = 10 * ocra + num;
+    ocrb = 10 * ocrb + num;
+  }
+}
+
+void init_com_seriala() {   
+  UCSR0A = 0;
+  UCSR0C = 0; //GOLIRE REGISTRE
+  UCSR0B = 0;
+  UCSR0C |= (1 << USBS0) | (1 << UCSZ00) | (1 << UCSZ01); //8 BITI DATE pt comm seriala
+  UBRR0 = 103;
+  UCSR0B |= (1 << RXEN0) | (1 << TXEN0);       //ACTIVARE RECEIVER TRANSMITER
+
+
+}
+void PWM() {
+  int nr, ok = 0,ok1=0;
+  char car;
+ 
+  
+
+  for (;;) {
+    car = USART_receive();
+    nr = car - '0';
+
+  Value(nr);
+ 
+
+    if (contor == 2) {
+      contor = 0; //resetam contoru in care vedem ca avem un nr format din doua cifre
+      car = USART_receive();
+      while (ok == 0) {
+        if (car == 0x41) {
+          if(ok1==1){                     //daca s-a scris in ocr0a inseamna ca putem primi o noua linie de comm seriala si punem in consecinta OCR0A pe 1
+            ok1=0;
+            OCR0A=0;
+            
+            }
+          OCR0A = (255 * ocra) / 100;
+          ocrb = 0;
+        }
+        else if (car == 0x42) {
+          OCR0B = (255 * ocrb) / 100;
+          ok1=1;                         //Dovada ca s-a scris in ambele registre ocr un nr pt pwm
+        }
+        ok = 1;
+      }
+
+      ok = 0;
+    }
+
+
+  }
+}

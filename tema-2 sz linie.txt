@@ -1,0 +1,47 @@
+
+void init_can() {
+
+
+  ADCSRA |= ((1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0));
+  ADMUX |= (1 << REFS0); // selectam tensiunea de referinta (ia referinta tensiune de 5v - referinta interna)
+  ADCSRA |= (1 << ADEN); // activare convertor(adc)
+  ADCSRA |= (1 << ADSC); //start conversie
+}
+
+
+void setup() {
+  cli(); //dezactivam tratarea intreruperilor
+ 
+
+  init_can();
+ 
+  sei();  //activam tratarea intreruperilor
+}
+
+
+
+uint16_t read_adc(uint8_t channel) // functie de citire pentru adc
+{
+  ADMUX &= 0xF0; // setare intrare semnal analogic senzor LM35 pe A0 arduino
+  ADMUX |= channel; // selectare canal
+  ADCSRA |= (1 << ADSC); //incepe conversie pentru adc
+  while (ADCSRA & (1 << ADSC)); // asteapta cat timp conversia adc ului nu e updatata
+  return ADC; //citeste si returneaza
+}
+
+void loop() {
+
+ 
+  
+
+ 
+if(read_adc(0)>60){//daca primim o valoare mai mare de 60 inseamna ca senzorul a detectat linia
+  
+  PORTD|=(1<<3);
+}else{
+  PORTD &= ~(1<<3);
+}
+
+
+
+}
