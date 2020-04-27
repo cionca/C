@@ -1,0 +1,163 @@
+Realizare un program folosind tablou de pointeri pentru următorul meniu:
+1.Citire propozitie
+2.Afisare propozitie
+3.Afisare lungime cuvinte
+4.Inlocuire a cu *
+5.Transformarea tuturor literelor mari din propozitie in litere mici
+6.Salvare in fisier a cuvintelor care incep cu vocala
+7.Sortarea cuvintelor in ordine alfabetica
+8.Cautarea unui cuvant introdus de la tastatura
+9.Stergerea unui cuvant
+0.Iesire 
+#include<stdio.h>
+#include<stdlib.h> 
+#include<string.h>
+#include<ctype.h> 
+#include<stdio.h> 
+#include<stdlib.h> 
+#include<string.h> 
+#include<ctype.h> 
+void citire(char **cuv, int n)
+{ 
+int i, lung = 50; 
+for (i = 0; i < n; i++)
+{ printf("Scrrieti %d cuvant: ", i + 1); 
+//Alocam memorie pentru fiecare cuvant - maxim 50 de octeti pe cuvant
+cuv[i] = (char*)malloc(sizeof(char)*lung); 
+scanf("%s", cuv[i]); 
+}
+} 
+void afisare(char **cuv, int n) 
+{ int i; for (i = 0; i<n; i++) 
+printf("%s ", cuv[i]); 
+} 
+void numar_caractere(char **cuv, int **lung, int n) 
+{ int i; 
+for (i = 0; i<n; i++)
+{
+//alocam memorie pentru tabloul care va contine lungimea fiecarui cuvant 
+lung[i] = (int*)malloc(sizeof(int)); *(lung[i]) = strlen(cuv[i]); } 
+for (i = 0; i<n; i++) { 
+printf("Lungimea cuvantului %d este: %d\n", i + 1, *lung[i]);
+} 
+} 
+void inlocuire(char **cuv, int n)
+{ 
+int i, j;
+for (i = 0; i<n; i++) 
+{ 
+for (j = 0; j<strlen(cuv[i]); j++) 
+if ((cuv[i])[j] == 'a') (cuv[i])[j] = '*'; 
+} } 
+void litere_mari_in_mici(char **cuv, int n) 
+{ int i, j; 
+for (i = 0; i<n; i++)
+{ 
+for (j = 0; j<strlen(cuv[i]); j++) 
+cuv[i][j] = tolower(cuv[i][j]);
+}
+afisare(cuv, n); printf("\n");
+}
+void salvare_fisier(char **cuv, int n) 
+{ int i;
+FILE *f; 
+f = fopen("Cuvinte_vocale.txt", "at");
+if (f == NULL) printf("Nu s-a putut crea/deschide fisierul!\n"); 
+else 
+{ 
+for (i = 0; i<n; i++)
+{
+if ((cuv[i])[0] == 'a' || (cuv[i])[0] == 'e' || (cuv[i])[0] == 'i' || (cuv[i])[0] == 'o' || (cuv[i])[0] == 'u') 
+fprintf(f, "%s ", cuv[i]);
+} } fclose(f); 
+}
+void sortare_cuvinte(char **cuv, int n)
+{
+int i, k;
+char *aux;
+do
+{ 
+k = 1;
+for (i = 1; i<n; i++)
+{
+if (strcmp(cuv[i - 1], cuv[i])>0)
+{ 
+aux = cuv[i - 1]; 
+cuv[i - 1] = cuv[i];
+cuv[i] = aux;
+k = 0; 
+} } } 
+while (!k);
+afisare(cuv, n);
+printf("\n");
+}
+void cautare(char **cuv, int n, char c[20]) 
+{ int i; 
+for (i = 0; i<n; i++) 
+if (strcmp(cuv[i], c) == 0) 
+printf("%s\n", cuv[i]); 
+}
+void stergere(char **cuv, int n, char c[20])
+{
+int i, j, k = 0;
+for (i = 0; i<n - k; i++)
+if (strcmp(cuv[i], c) == 0)
+{ k++; for (j = i; j <= n - k; j++)
+cuv[j] = cuv[j + 1]; i--; 
+}
+n = n - k; 
+afisare(cuv, n);
+printf("\n");
+} 
+int main() 
+{
+char *cuv[30], c[20], c1[20];
+int opt, n, *lung[30]; 
+do{ 
+printf("1.Citire propozitie\n");
+printf("2.Afisare propozitie\n");
+printf("3.Afisare lungime cuvinte\n");
+printf("4.Inlocuire a cu *\n");
+printf("5.Transformarea tuturor literelor mari din propozitie in litere mici\n"); 
+printf("6.Salvare in fisier a cuvintelor care incep cu vocala\n"); 
+printf("7.Sortarea cuvintelor in ordine alfabetica\n"); 
+printf("8.Cautarea unui cuvant introdus de la tastatura\n"); 
+printf("9.Stergerea unui cuvant\n"); 
+printf("0.Iesire\n");
+printf("Optiunea dv. este:");
+scanf("%d", &opt);
+switch (opt)
+{
+case 1:printf("Dati numarul de cuvinte: "); 
+       scanf("%d", &n); 
+       citire(cuv, n); 
+       break;
+case 2:afisare(cuv, n); 
+       printf("\n"); 
+       break; 
+case 3:numar_caractere(cuv, lung, n);
+       break; 
+case 4:inlocuire(cuv, n); 
+        afisare(cuv, n); 
+        printf("\n"); 
+        break;  
+ case 5:litere_mari_in_mici(cuv, n);
+        break; 
+case 6:salvare_fisier(cuv, n);
+       break;
+case 7: sortare_cuvinte(cuv, n); 
+       break; 
+case 8: printf("Introduceti cuvantul pe care doriti sa-l cautati: "); 
+        scanf("%s", c); 
+        cautare(cuv, n, c); 
+        break; 
+ case 9:printf("Introduceti cuvantul pe care doriti sa-l stergeti: "); 
+        scanf("%s", c1); stergere(cuv, n, c1);
+        break; case 0: exit(0); 
+        break; 
+        default:printf("Optiune gresita!\n"); break;
+        } 
+        }
+        while (opt != 0);
+        return 0; 
+        }
